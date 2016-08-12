@@ -13,15 +13,21 @@ using Microsoft.Owin.Security.Notifications;
 using Microsoft.Owin.Security.OpenIdConnect;
 using MultiAuthApp.Models;
 using Owin;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace MultiAuthApp
 {
     public partial class Startup
     {
+        public static Func<RoleManager<IdentityRole>> RoleManagerFactory { get; set; }
+
         // App config settings
         private static string clientId = ConfigurationManager.AppSettings["ida:ClientId"];
+        private static string b2eClientId = ConfigurationManager.AppSettings["ida:B2EClientId"];
         private static string aadInstance = ConfigurationManager.AppSettings["ida:AadInstance"];
+        private static string b2eAadInstance = ConfigurationManager.AppSettings["ida:B2EAadInstance"];
         private static string tenant = ConfigurationManager.AppSettings["ida:Tenant"];
+        private static string b2eTenant = ConfigurationManager.AppSettings["ida:B2ETenant"];
         private static string redirectUri = ConfigurationManager.AppSettings["ida:RedirectUri"];
 
         // B2C policy identifiers
@@ -38,6 +44,12 @@ namespace MultiAuthApp
             app.UseOpenIdConnectAuthentication(CreateOptionsFromPolicy(SignUpPolicyId));
             app.UseOpenIdConnectAuthentication(CreateOptionsFromPolicy(ProfilePolicyId));
             app.UseOpenIdConnectAuthentication(CreateOptionsFromPolicy(SignInPolicyId));
+
+            //Configure OpenID Connect middlewaree for B2E policy
+            app.UseOpenIdConnectAuthentication(CreateB2EOptions());
+
+            //Setup role manager factory
+            RoleManagerFactory = () => new RoleManager<IdentityRole>(new RoleStore<IdentityRole>());
         }
 
         // Used for avoiding yellow-screen-of-death
@@ -83,5 +95,28 @@ namespace MultiAuthApp
                 },
             };
         }
+
+        private OpenIdConnectAuthenticationOptions CreateB2EOptions()
+        {
+            return new OpenIdConnectAuthenticationOptions
+            {
+                Authority = string.Format(b2eAadInstance, "common"),
+                ClientId = b2eClientId,
+                RedirectUri = redirectUri,
+                PostLogoutRedirectUri = redirectUri,
+                Notifications = new OpenIdConnectAuthenticationNotifications
+                {
+                    AuthenticationFailed = AuthenticationFailed,
+                },
+
+                TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                },
+
+                AuthenticationType = "OpenIdConnect-B2E",
+            };
+        }
+
     }
 }

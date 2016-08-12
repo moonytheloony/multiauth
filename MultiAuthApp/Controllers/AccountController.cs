@@ -26,6 +26,19 @@ namespace MultiAuthApp.Controllers
             }
         }
 
+        public void EmployeeSignIn()
+        {
+            if (!Request.IsAuthenticated)
+            {
+                HttpContext.GetOwinContext().Authentication.Challenge(
+                    new AuthenticationProperties
+                    {
+                        RedirectUri = "/",
+                    },
+                    "OpenIdConnect-B2E");
+            }
+        }
+
         public void SignUp()
         {
             if (!Request.IsAuthenticated)
