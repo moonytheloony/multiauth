@@ -47,9 +47,6 @@ namespace MultiAuthApp
 
             //Configure OpenID Connect middlewaree for B2E policy
             app.UseOpenIdConnectAuthentication(CreateB2EOptions());
-
-            //Setup role manager factory
-            RoleManagerFactory = () => new RoleManager<IdentityRole>(new RoleStore<IdentityRole>());
         }
 
         // Used for avoiding yellow-screen-of-death

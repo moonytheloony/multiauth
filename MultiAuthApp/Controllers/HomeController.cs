@@ -18,16 +18,12 @@ namespace MultiAuthApp.Controllers
         [Authorize]
         public ActionResult Claims()
         {
-            Claim displayName = ClaimsPrincipal.Current.Identities.First().Claims.Where(claim => claim.Type == "emails").First();
-            ViewBag.DisplayName = displayName != null ? displayName.Value : string.Empty;
             return View();
         }
 
         [Authorize(Roles = "Employee")]
         public ActionResult EmployeeClaims()
         {
-            Claim displayName = ClaimsPrincipal.Current.Identities.First().Claims.Where(claim => claim.Type == "emails").First();
-            ViewBag.DisplayName = displayName != null ? displayName.Value : string.Empty;
             return View();
         }
 
