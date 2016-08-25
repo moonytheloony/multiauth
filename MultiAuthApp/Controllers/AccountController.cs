@@ -1,72 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using MultiAuthApp.Models;
-
-namespace MultiAuthApp.Controllers
+﻿namespace MultiAuthApp.Controllers
 {
+    #region
+
+    using System.Linq;
+    using System.Web;
+    using System.Web.Mvc;
+
+    using Microsoft.Owin.Security;
+
+    #endregion
+
     public class AccountController : Controller
     {
-        public void SignIn()
-        {
-            if (!Request.IsAuthenticated)
-            {
-                // To execute a policy, you simply need to trigger an OWIN challenge.
-                // You can indicate which policy to use by specifying the policy id as the AuthenticationType
-                HttpContext.GetOwinContext().Authentication.Challenge(
-                    new AuthenticationProperties() { RedirectUri = "/" }, Startup.SignInPolicyId);
-            }
-        }
+        #region Public Methods and Operators
 
         public void EmployeeSignIn()
         {
-            if (!Request.IsAuthenticated)
+            if (!this.Request.IsAuthenticated)
             {
-                HttpContext.GetOwinContext().Authentication.Challenge(
-                    new AuthenticationProperties
-                    {
-                        RedirectUri = "/",
-                    },
-                    "OpenIdConnect-B2E");
+                this.HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/" }, Startup.B2EEmployeeSignInPolicyId);
             }
         }
-
-        public void SignUp()
-        {
-            if (!Request.IsAuthenticated)
-            {
-                HttpContext.GetOwinContext().Authentication.Challenge(
-                    new AuthenticationProperties() { RedirectUri = "/" }, Startup.SignUpPolicyId);
-            }
-        }
-
 
         public void Profile()
         {
-            if (Request.IsAuthenticated)
+            if (this.Request.IsAuthenticated)
             {
-                HttpContext.GetOwinContext().Authentication.Challenge(
-                    new AuthenticationProperties() { RedirectUri = "/" }, Startup.ProfilePolicyId);
+                this.HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/" }, Startup.ProfilePolicyId);
+            }
+        }
+
+        public void SignIn()
+        {
+            if (!this.Request.IsAuthenticated)
+            {
+                // To execute a policy, you simply need to trigger an OWIN challenge.
+                // You can indicate which policy to use by specifying the policy id as the AuthenticationType
+                this.HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/" }, Startup.SignInPolicyId);
             }
         }
 
         public void SignOut()
         {
             // To sign out the user, you should issue an OpenIDConnect sign out request.
-            if (Request.IsAuthenticated)
+            if (this.Request.IsAuthenticated)
             {
-                IEnumerable<AuthenticationDescription> authTypes = HttpContext.GetOwinContext().Authentication.GetAuthenticationTypes();
-                HttpContext.GetOwinContext().Authentication.SignOut(authTypes.Select(t => t.AuthenticationType).ToArray());
-                Request.GetOwinContext().Authentication.GetAuthenticationTypes();
+                var authTypes = this.HttpContext.GetOwinContext().Authentication.GetAuthenticationTypes();
+                this.HttpContext.GetOwinContext().Authentication.SignOut(authTypes.Select(t => t.AuthenticationType).ToArray());
+                this.Request.GetOwinContext().Authentication.GetAuthenticationTypes();
             }
         }
+
+        public void SignUp()
+        {
+            if (!this.Request.IsAuthenticated)
+            {
+                this.HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/" }, Startup.SignUpPolicyId);
+            }
+        }
+
+        #endregion
     }
 }
